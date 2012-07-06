@@ -19,33 +19,36 @@
         return myOptions;
       }
       function initialize() {
-        
-        document.map = new google.maps.Map(document.getElementById("map_canvas"),
-            getMapOptions('-34.397', '150.644'));
+        document.map = new google.maps.Map(document.getElementById("map_canvas"), getMapOptions('-34.397', '150.644'));
       }
 
-      function SetMapAddress(address) {
-         var geocoder = new google.maps.Geocoder();
-         if (geocoder) {
+       function RequestMapAddress(address) {
+          GetLocationGeometry(address);
+       }
+
+       function SetMapAddress(g) {
+         if (g != null) {
+            var loc = g.location;
+            document.map.setCenter(new google.maps.LatLng(loc.lat(),loc.lng(), 13));
+            document.map.fitBounds(g.viewport); // geometry.bounds is optionally returned. 
+         }
+         $('#searchfield').focus();
+       }
+
+       function GetLocationGeometry(address) {
+          var geocoder = new google.maps.Geocoder();
+          if (geocoder) {
             geocoder.geocode({ 'address': address }, function (results, status) {
                if (status == google.maps.GeocoderStatus.OK) {
-                  console.log(results);
-                  console.log('result bounds:')
-                  console.log(results[0].geometry);
-                  var loc = results[0].geometry.location;
-
-                  document.map.setCenter(new google.maps.LatLng(loc.lat(),loc.lng(), 13));
-                  document.map.fitBounds(results[0].geometry.viewport); // geometry.bounds is optionally returned. 
+                  var g = results[0].geometry;
+                  SetMapAddress(g);
                }
                else {
                   console.log("Geocoding failed: " + status);
                }
             });
-         } 
-         $('#searchfield').focus();
-       }
-
-       
+          }
+     }       
     </script>
   </head>
   <body>
@@ -53,15 +56,29 @@
       <div id="map_canvas"></div>
 
       <div id="searchdiv">
-        <input type="text" id="searchfield" size="35" value="London, UK"></input>
+        <input type="text" id="searchfield" size="35" value="London, UK"></input><br /><br />
+        <label>Add Pin</label><br />
+        <input type="text" id="pinfield" size="35"></input>
       </div>
 
     <script type="text/javascript">
       initialize();
-      $(document).ready(function () {
-        //your code here
-        SetMapAddress(  $('#searchfield').val()  );
-
+      function AddMarker(address) {
+          var geocoder = new google.maps.Geocoder();
+          if (geocoder) {
+            geocoder.geocode({ 'address': address }, function (results, status) {
+               if (status == google.maps.GeocoderStatus.OK) {
+                  var g = results[0].geometry;
+                  AddMarkerCallback(g);
+               }
+               else {
+                  console.log("Geocoding failed: " + status);
+               }
+            });
+          }
+      }
+      function AddMarkerCallback(g) {
+        console.log(g);
         // Define Marker properties
         var image = new google.maps.MarkerImage('images/marker24.png',
           // This marker is 129 pixels wide by 42 pixels tall.
@@ -71,16 +88,24 @@
           // The anchor for this image is the base of the flagpole at 18,42.
           new google.maps.Point(18, 42)
         );
-        var marker1 = new google.maps.Marker({position: new google.maps.LatLng(53.385846,-1.471385),map: document.map,icon: image // This path is the custom pin to be shown. Remove this line and the proceeding comma to use default pin
+        var marker1 = new google.maps.Marker({position: new google.maps.LatLng(g.location.lat(),g.location.lng()),map: document.map,icon: image // This path is the custom pin to be shown. Remove this line and the proceeding comma to use default pin
         });
+      }
 
-
+      $(document).ready(function () {
+        //your code here
+        RequestMapAddress(  $('#searchfield').val()  );
       });
 
       $('#searchfield').keydown(function(e) {
           var code = (e.keyCode ? e.keyCode : e.which);
           if (code == '13')
-            SetMapAddress(  $('#searchfield').val()  );
+            RequestMapAddress(  $('#searchfield').val()  );
+      });
+      $('#pinfield').keydown(function(e) {
+          var code = (e.keyCode ? e.keyCode : e.which);
+          if (code == '13')
+            AddMarker(  $('#pinfield').val()  );
       });
       
     </script>
