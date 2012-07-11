@@ -3,52 +3,49 @@
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="css\main.css">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAfjBtWwc6zERCeyxZM25GZ44Tp9jBm9Lc&sensor=false"></script>
-
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/markerwithlabel.js"></script>
+    <script type="text/javascript" src="js/markercluster.js"></script>
+    <script type="text/javascript" src="js/maps.js"></script>
 
     <script type="text/javascript">
-      function getMapOptions(lat, lng) {
 
-        var myOptions = {
-          center: new google.maps.LatLng(lat, lng),
-          zoom: 6,
-          disableDefaultUI: true,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        return myOptions;
-      }
-      function initialize() {
-        document.map = new google.maps.Map(document.getElementById("map_canvas"), getMapOptions('-34.397', '150.644'));
-      }
 
-       function RequestMapAddress(address) {
-          GetLocationGeometry(address);
-       }
 
-       function SetMapAddress(g) {
-         if (g != null) {
-            var loc = g.location;
-            document.map.setCenter(new google.maps.LatLng(loc.lat(),loc.lng(), 13));
-            document.map.fitBounds(g.viewport); // geometry.bounds is optionally returned. 
-         }
-         $('#searchfield').focus();
-       }
+        
 
-       function GetLocationGeometry(address) {
-          var geocoder = new google.maps.Geocoder();
-          if (geocoder) {
-            geocoder.geocode({ 'address': address }, function (results, status) {
-               if (status == google.maps.GeocoderStatus.OK) {
-                  var g = results[0].geometry;
-                  SetMapAddress(g);
-               }
-               else {
-                  console.log("Geocoding failed: " + status);
-               }
-            });
-          }
-     }       
+     // function TestMarkerWithLabel(lat, lng) {
+     //    var latLng = new google.maps.LatLng(lat,lng);
+
+     //    var map = document.map;
+
+     //     var image = new google.maps.MarkerImage('images/marker24.png',
+     //      // This marker is 129 pixels wide by 42 pixels tall.
+     //      new google.maps.Size(129, 42),
+     //      // The origin for this image is 0,0.
+     //      new google.maps.Point(0,0),
+     //      // The anchor for this image is the base of the flagpole at 18,42.
+     //      new google.maps.Point(18, 42)
+     //    );
+
+     //    var marker = new MarkerWithLabel({
+     //     position: latLng,
+     //     draggable: true,
+     //     map: map,
+     //     icon: image,
+     //     labelContent: "$425K",
+     //     labelAnchor: new google.maps.Point(22, 0),
+     //     labelClass: "labels", // the CSS class for the label
+     //     labelStyle: {opacity: 0.75}
+     //    });
+
+     //    var iw = new google.maps.InfoWindow({
+     //     content: "Home For Sale"
+     //    });
+     //    google.maps.event.addListener(marker, "click", function (e) { iw.open(map, marker); });
+
+     // }     
     </script>
   </head>
   <body>
@@ -56,13 +53,15 @@
       <div id="map_canvas"></div>
 
       <div id="searchdiv">
-        <input type="text" id="searchfield" size="35" value="London, UK"></input><br /><br />
+        <input type="text" id="searchfield" size="35" value="United States"></input><br /><br />
         <label>Add Pin</label><br />
         <input type="text" id="pinfield" size="35"></input>
       </div>
 
     <script type="text/javascript">
+
       initialize();
+addMarkerCluster();
       function AddMarker(address) {
           var geocoder = new google.maps.Geocoder();
           if (geocoder) {
@@ -76,7 +75,25 @@
                }
             });
           }
+          
       }
+
+      function addMarkerCluster() {
+        var markers = [];
+        console.log('adding markers');
+        for (var i = 0; i < 9; i++) {
+          
+          var latLng = new google.maps.LatLng(37,95);
+          var marker = new google.maps.Marker({
+            position: latLng
+          });
+          markers.push(marker);
+        }
+        console.log('adding markers: ' + markers.length);
+        console.log(document.map);
+        var markerCluster = new MarkerClusterer(document.map, markers);
+      }
+
       function AddMarkerCallback(g) {
         console.log(g);
         // Define Marker properties
@@ -90,11 +107,15 @@
         );
         var marker1 = new google.maps.Marker({position: new google.maps.LatLng(g.location.lat(),g.location.lng()),map: document.map,icon: image // This path is the custom pin to be shown. Remove this line and the proceeding comma to use default pin
         });
+
+        // TestMarkerWithLabel(g.location.lat(), g.location.lng());
       }
 
       $(document).ready(function () {
         //your code here
         RequestMapAddress(  $('#searchfield').val()  );
+
+        
       });
 
       $('#searchfield').keydown(function(e) {
