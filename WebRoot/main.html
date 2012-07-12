@@ -60,8 +60,8 @@
 
     <script type="text/javascript">
 
-      initialize();
-addMarkerCluster();
+      initializeMaps();
+
       function AddMarker(address) {
           var geocoder = new google.maps.Geocoder();
           if (geocoder) {
@@ -91,7 +91,7 @@ addMarkerCluster();
         }
         console.log('adding markers: ' + markers.length);
         console.log(document.map);
-        var markerCluster = new MarkerClusterer(document.map, markers);
+        document.markerCluster = new MarkerClusterer(document.map, markers);
       }
 
       function AddMarkerCallback(g) {
@@ -105,8 +105,13 @@ addMarkerCluster();
           // The anchor for this image is the base of the flagpole at 18,42.
           new google.maps.Point(18, 42)
         );
-        var marker1 = new google.maps.Marker({position: new google.maps.LatLng(g.location.lat(),g.location.lng()),map: document.map,icon: image // This path is the custom pin to be shown. Remove this line and the proceeding comma to use default pin
+
+        var latLng = new google.maps.LatLng(g.location.lat(),g.location.lng());
+
+        var marker1 = new google.maps.Marker({position: latLng,map: document.map,icon: image // This path is the custom pin to be shown. Remove this line and the proceeding comma to use default pin
         });
+
+        document.markerCluster.addMarker(marker1, true);
 
         // TestMarkerWithLabel(g.location.lat(), g.location.lng());
       }

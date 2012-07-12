@@ -79,8 +79,11 @@
   }
   
   // INITIALIZE
-  function initialize() {
+  function initializeMaps() {
     document.map = new google.maps.Map(document.getElementById("map_canvas"), getMapOptions('-34.397', '150.644'));
+    document.markerCluster = new MarkerClusterer(document.map, null);
+    console.log('marker cluster:')
+    console.log(document.markerCluster);
   }
 
   // RESOLVE ADDRESS *******
