@@ -8,48 +8,15 @@
     <script type="text/javascript" src="js/markerwithlabel.js"></script>
     <script type="text/javascript" src="js/markercluster.js"></script>
     <script type="text/javascript" src="js/maps.js"></script>
+    <script type="text/javascript" src="js/addresses.js"></script>
 
     <script type="text/javascript">
-
-
-
-        
-
-     // function TestMarkerWithLabel(lat, lng) {
-     //    var latLng = new google.maps.LatLng(lat,lng);
-
-     //    var map = document.map;
-
-     //     var image = new google.maps.MarkerImage('images/marker24.png',
-     //      // This marker is 129 pixels wide by 42 pixels tall.
-     //      new google.maps.Size(129, 42),
-     //      // The origin for this image is 0,0.
-     //      new google.maps.Point(0,0),
-     //      // The anchor for this image is the base of the flagpole at 18,42.
-     //      new google.maps.Point(18, 42)
-     //    );
-
-     //    var marker = new MarkerWithLabel({
-     //     position: latLng,
-     //     draggable: true,
-     //     map: map,
-     //     icon: image,
-     //     labelContent: "$425K",
-     //     labelAnchor: new google.maps.Point(22, 0),
-     //     labelClass: "labels", // the CSS class for the label
-     //     labelStyle: {opacity: 0.75}
-     //    });
-
-     //    var iw = new google.maps.InfoWindow({
-     //     content: "Home For Sale"
-     //    });
-     //    google.maps.event.addListener(marker, "click", function (e) { iw.open(map, marker); });
-
-     // }     
+   
     </script>
   </head>
   <body>
     <div class="maincontent">
+      <div id="marker_canvas"></div>
       <div id="map_canvas"></div>
 
       <div id="searchdiv">
@@ -62,13 +29,13 @@
 
       initializeMaps();
 
-      function AddMarker(address) {
+      function AddMarkerAsync(address) {
           var geocoder = new google.maps.Geocoder();
           if (geocoder) {
             geocoder.geocode({ 'address': address }, function (results, status) {
                if (status == google.maps.GeocoderStatus.OK) {
                   var g = results[0].geometry;
-                  AddMarkerCallback(g);
+                  AddMarker(g.location.lat(), g.location.lng());
                }
                else {
                   console.log("Geocoding failed: " + status);
@@ -78,26 +45,17 @@
           
       }
 
-      function addMarkerCluster() {
-        var markers = [];
-        console.log('adding markers');
-        for (var i = 0; i < 9; i++) {
-          
-          var latLng = new google.maps.LatLng(37,95);
-          var marker = new google.maps.Marker({
-            position: latLng
-          });
-          markers.push(marker);
-        }
-        console.log('adding markers: ' + markers.length);
-        console.log(document.map);
-        document.markerCluster = new MarkerClusterer(document.map, markers);
+      function loadMarkers() {
+          for (var i = document.addresses.length - 1; i >= 0; i--) {
+             var a = document.addresses[i];
+             AddMarker(a.lat, a.lng);
+           }; 
+
       }
 
-      function AddMarkerCallback(g) {
-        console.log(g);
+      function AddMarker(lat, lng) {
         // Define Marker properties
-        var image = new google.maps.MarkerImage('images/marker24.png',
+        var image = new google.maps.MarkerImage('images/marker_red.png',
           // This marker is 129 pixels wide by 42 pixels tall.
           new google.maps.Size(129, 42),
           // The origin for this image is 0,0.
@@ -106,21 +64,15 @@
           new google.maps.Point(18, 42)
         );
 
-        var latLng = new google.maps.LatLng(g.location.lat(),g.location.lng());
-
+        var latLng = new google.maps.LatLng(lat,lng);
         var marker1 = new google.maps.Marker({position: latLng,map: document.map,icon: image // This path is the custom pin to be shown. Remove this line and the proceeding comma to use default pin
         });
-
         document.markerCluster.addMarker(marker1, true);
-
-        // TestMarkerWithLabel(g.location.lat(), g.location.lng());
       }
 
       $(document).ready(function () {
-        //your code here
+        loadMarkers();
         RequestMapAddress(  $('#searchfield').val()  );
-
-        
       });
 
       $('#searchfield').keydown(function(e) {
@@ -131,7 +83,7 @@
       $('#pinfield').keydown(function(e) {
           var code = (e.keyCode ? e.keyCode : e.which);
           if (code == '13')
-            AddMarker(  $('#pinfield').val()  );
+            AddMarkerAsync(  $('#pinfield').val()  );
       });
       
     </script>
