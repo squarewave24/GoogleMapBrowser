@@ -121,6 +121,51 @@
   }
 
   function mapCenterChanged() {
-    ShowMarkers();
+    document.mapCenterChanged = true;
   }
-  // MARKERS
+
+  // MARKERS ************************************************************************** // 
+  function loadMarkers() {
+    
+    // return;
+    
+    for (var i = document.addresses.length - 1; i >= 0; i--) {
+       var a = document.addresses[i];
+       AddMarker(a.lat, a.lng, a.location);
+     }; 
+
+  }
+
+  function AddMarkerAsync(address) {
+      var geocoder = new google.maps.Geocoder();
+      if (geocoder) {
+        geocoder.geocode({ 'address': address }, function (results, status) {
+           if (status == google.maps.GeocoderStatus.OK) {
+              var g = results[0].geometry;
+              AddMarker(g.location.lat(), g.location.lng(), address);
+           }
+           else {
+              console.log("Geocoding failed: " + status);
+           }
+        });
+      }
+      
+  }
+  function AddMarker(lat, lng, address) {
+    // Define Marker properties
+    var image = new google.maps.MarkerImage('images/marker_red.png',
+      // This marker is 129 pixels wide by 42 pixels tall.
+      new google.maps.Size(129, 42),
+      // The origin for this image is 0,0.
+      new google.maps.Point(0,0),
+      // The anchor for this image is the base of the flagpole at 18,42.
+      new google.maps.Point(18, 42)
+    );
+
+    var latLng = new google.maps.LatLng(lat,lng);
+    var marker1 = new google.maps.Marker({position: latLng,map: document.map,icon: image // This path is the custom pin to be shown. Remove this line and the proceeding comma to use default pin
+    });
+    if (address)
+      marker1.setTitle(address);
+    document.markerCluster.addMarker(marker1, true);
+  }
