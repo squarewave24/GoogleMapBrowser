@@ -82,8 +82,7 @@
   function initializeMaps() {
     document.map = new google.maps.Map(document.getElementById("map_canvas"), getMapOptions('-34.397', '150.644'));
     document.markerCluster = new MarkerClusterer(document.map, null);
-    console.log('marker cluster:')
-    console.log(document.markerCluster);
+    google.maps.event.addListener(document.map, 'center_changed', mapCenterChanged);
   }
 
   // RESOLVE ADDRESS *******
@@ -114,7 +113,14 @@
       var loc = g.location;
       document.map.setCenter(new google.maps.LatLng(loc.lat(),loc.lng(), 13));
       document.map.fitBounds(g.viewport); // geometry.bounds is optionally returned. 
+
+      
+
    }
    $('#searchfield').focus();
+  }
+
+  function mapCenterChanged() {
+    ShowMarkers();
   }
   // MARKERS

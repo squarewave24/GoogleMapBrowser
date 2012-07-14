@@ -20,6 +20,11 @@ html { height: 100%;}
 	background-color: #f9f9f9;
 	margin-right: 2%;
 	float: left;
+
+	font-family: calibri,verdana;
+	font-size: 12px;
+	padding: 5px;
+	color: #444444;
 }
 
 #map_canvas { 
